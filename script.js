@@ -7,20 +7,28 @@ document.getElementById('send-button').addEventListener('click', () => {
 // Firebase Database URL
 const firebaseUrl = "https://macut-api-default-rtdb.firebaseio.com/data.json";
 
-// Function to fetch data from Firebase and display it in `display-box`
-function fetchData() {
-    fetch(firebaseUrl)
-        .then(response => response.json())
-        .then(data => {
-            // Display only the message content
-            const displayText = data.message || "No message found"; // Access the "message" field directly
-            document.getElementById("display-box").innerText = displayText;
-        })
-        .catch(error => console.error("Error fetching data:", error));
+// Function to send data to Firebase
+function sendData() {
+    const inputBox = document.getElementById("input-box");
+    const message = inputBox.value;
+
+    // Send the message to Firebase
+    fetch(firebaseUrl, {
+        method: "PUT",  // "PUT" will replace the entire data at the "data.json" path
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: message })  // Send message as a JSON object
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log("Message sent to Firebase:", message);
+            inputBox.value = ""; // Clear the input box after sending
+        }
+    })
+    .catch(error => console.error("Error sending data:", error));
 }
 
-// Fetch data from Firebase when the page loads
-window.onload = fetchData;
+// Event listener for the "Send" button
+document.getElementById("send-button").addEventListener("click", sendData);
 
-// Optional: You can also add this function to reload data every few seconds
-setInterval(fetchData, 5000); // Fetch new data every 5 seconds
