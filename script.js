@@ -1,34 +1,24 @@
-document.getElementById('send-button').addEventListener('click', () => {
-    const inputText = document.getElementById('input-box').value;
-    document.getElementById('display-box').innerText = inputText;
-    document.getElementById('input-box').value = ''; // Clear the input box
-});
-
 // Firebase Database URL
 const firebaseUrl = "https://macut-api-default-rtdb.firebaseio.com/data.json";
 
-// Function to send data to Firebase
-function sendData() {
-    const inputBox = document.getElementById("input-box");
-    const message = inputBox.value;
+// Function to fetch data from Firebase and display it in the respective display-box
+function fetchData() {
+    fetch(firebaseUrl)
+        .then(response => response.json())
+        .then(data => {
+            // Access the data under the "data" object
+            const file1Content = data && data.file1 ? data.file1 : "No data found for File 1";
+            const file2Content = data && data.file2 ? data.file2 : "No data found for File 2";
 
-    // Send the message to Firebase
-    fetch(firebaseUrl, {
-        method: "PUT",  // "PUT" will replace the entire data at the "data.json" path
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message: message })  // Send message as a JSON object
-    })
-    .then(response => {
-        if (response.ok) {
-            console.log("Message sent to Firebase:", message);
-            inputBox.value = ""; // Clear the input box after sending
-        }
-    })
-    .catch(error => console.error("Error sending data:", error));
+            // Update the content of the display-boxes
+            document.getElementById("file1-display").innerText = file1Content;
+            document.getElementById("file2-display").innerText = file2Content;
+        })
+        .catch(error => console.error("Error fetching data:", error));
 }
 
-// Event listener for the "Send" button
-document.getElementById("send-button").addEventListener("click", sendData);
+// Fetch data from Firebase when the page loads
+window.onload = fetchData;
 
+// Optional: You can also add this function to reload data every few seconds
+setInterval(fetchData, 5000); // Fetch new data every 5 seconds
